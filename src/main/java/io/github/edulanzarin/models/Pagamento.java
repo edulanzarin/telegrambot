@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 public class Pagamento {
 
     private String id;
-    private final LocalDateTime vencimento;
     private Assinatura assinatura;
+    private final LocalDateTime vencimento;
 
     /*
      * Construtor com duração do pagamento sempre de 3 horas
@@ -34,20 +34,20 @@ public class Pagamento {
         this.id = id;
     }
 
-    public LocalDateTime getVencimento() {
-        return vencimento;
+    public void setAssinatura(Assinatura assinatura) {
+        this.assinatura = assinatura;
     }
 
     public Assinatura getAssinatura() {
         return assinatura;
     }
 
-    public void setAssinatura(Assinatura assinatura) {
-        this.assinatura = assinatura;
+    public LocalDateTime getVencimento() {
+        return vencimento;
     }
 
     @Override
     public String toString() {
-        return "Pagamento [id=" + id + ", vencimento=" + vencimento + ", assinatura=" + assinatura + "]";
+        return "Pagamento [id=" + id + ", assinatura=" + assinatura + " vencimento=" + vencimento + ", ]";
     }
 }
