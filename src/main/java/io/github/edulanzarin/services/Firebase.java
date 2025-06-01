@@ -1,26 +1,23 @@
 package io.github.edulanzarin.services;
 
+import com.google.api.core.ApiFuture;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.cloud.FirestoreClient;
 import com.google.gson.JsonObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-/*
- * Classe responsável pelas funções do Firebase, como cadastro de usuário,
- * cadastro e assinatura, cadastro e pagamentos e etc.
- * Usa .env para as variáveis, por motivos de segurança.
- */
 public class Firebase {
 
     public static void initialize() {
         try {
-            /*
-             * Monta o JSON a partir dos valores das variáveis de ambiente (.env)
-             */
             JsonObject json = new JsonObject();
             json.addProperty("type", System.getenv("FIREBASE_TYPE"));
             json.addProperty("project_id", System.getenv("FIREBASE_PROJECT_ID"));
@@ -52,5 +49,23 @@ public class Firebase {
             System.err.println("❌ Erro ao inicializar o Firebase:");
             e.printStackTrace();
         }
+    }
+
+    public static String buscarMensagem(String chave) {
+        try {
+            Firestore db = FirestoreClient.getFirestore();
+            DocumentReference docRef = db.collection("respostas").document(chave);
+            ApiFuture<DocumentSnapshot> future = docRef.get();
+            DocumentSnapshot document = future.get();
+
+            if (document.exists()) {
+                return document.getString("mensagem");
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Erro ao buscar mensagem do Firebase:");
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }
