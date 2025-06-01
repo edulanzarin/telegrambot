@@ -16,6 +16,20 @@ public class Assinatura {
     private LocalDate dataFim;
     private Usuario usuario;
 
+    /*
+     * Construtor padrão
+     */
+    public Assinatura(String id, PlanoAssinatura plano, LocalDate dataInicio, LocalDate dataFim, Usuario usuario) {
+        this.id = id;
+        this.plano = plano;
+        this.dataInicio = dataInicio;
+        this.dataFim = dataFim;
+        this.usuario = usuario;
+    }
+
+    /*
+     * Getters e setters
+     */
     public String getId() {
         return id;
     }

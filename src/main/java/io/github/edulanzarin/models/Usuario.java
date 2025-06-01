@@ -4,6 +4,9 @@ package io.github.edulanzarin.models;
  * Classe responsável pelo modelo do usuário, onde as informações do usuários
  * serão coletadas pelo próprio bot no Telegram e a assinatura será
  * atribuída como null sempre que um usuário for criado.
+ * Cada usuário pode ter apenas uma assinatura, sendo necessário um controle
+ * de vencimento das assinaturas, permitindo que o usuário tenha privilégios VIP
+ * mesmo um dia após o vencimento (tempo para enviar mensagem de renovação e assinatura).
  */
 public class Usuario {
 
@@ -11,6 +14,16 @@ public class Usuario {
     private String usuario;
     private String nome;
     private Assinatura assinatura;
+
+    /*
+     * Construtor padrão sem assinatura, pois ela será inserida apenas quando
+     * o usuário realizar uma compra.
+     */
+    public Usuario(String id, String usuario, String nome) {
+        this.id = id;
+        this.usuario = usuario;
+        this.nome = nome;
+    }
 
     /*
      * Getters e setters

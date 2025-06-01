@@ -1,5 +1,5 @@
 package io.github.edulanzarin.services;
 
-public class FirebaseService {
+public class MercadoPago {
 
 }
