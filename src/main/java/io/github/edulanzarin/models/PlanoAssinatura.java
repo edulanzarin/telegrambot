@@ -22,9 +22,7 @@ public enum PlanoAssinatura {
         this.preco = preco;
     }
 
-    /*
-     * Apenas getters, não tem setters pois os valores são fixos.
-     */
+    /* Apenas getters, não tem setters pois os valores são fixos */
     public int getDuracaoMeses() {
         return duracaoMeses;
     }

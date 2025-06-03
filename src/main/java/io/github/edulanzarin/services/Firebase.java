@@ -16,6 +16,8 @@ import java.nio.charset.StandardCharsets;
 
 public class Firebase {
 
+    private static Firestore db;
+
     public static void initialize() {
         try {
             JsonObject json = new JsonObject();
@@ -45,6 +47,8 @@ public class Firebase {
                 System.out.println("⚠️ Firebase já estava inicializado.");
             }
 
+            db = FirestoreClient.getFirestore();
+
         } catch (Exception e) {
             System.err.println("❌ Erro ao inicializar o Firebase:");
             e.printStackTrace();
@@ -53,7 +57,6 @@ public class Firebase {
 
     public static String buscarMensagem(String chave) {
         try {
-            Firestore db = FirestoreClient.getFirestore();
             DocumentReference docRef = db.collection("respostas").document(chave);
             ApiFuture<DocumentSnapshot> future = docRef.get();
             DocumentSnapshot document = future.get();

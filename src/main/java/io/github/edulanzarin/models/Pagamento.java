@@ -14,18 +14,15 @@ public class Pagamento {
     private Assinatura assinatura;
     private final LocalDateTime vencimento;
 
-    /*
-     * Construtor com duração do pagamento sempre de 3 horas
-     */
+    /* Construtor com duração do pagamento sempre de 3 horas */
     public Pagamento(String id, Assinatura assinatura) {
         this.id = id;
         this.assinatura = assinatura;
         this.vencimento = LocalDateTime.now().plusHours(3);
     }
 
-    /*
-     * Getters e setters
-     */
+    /* Getters e setters */
+
     public String getId() {
         return id;
     }
