@@ -11,16 +11,14 @@ public class Mensagem {
 
     private String id;
     private String conteudo;
-    private LocalDateTime dataHora;
+    private LocalDateTime dataEnvio;
     private Usuario usuario;
 
-    /*
-     * Construtor padrão
-     */
-    public Mensagem(String id, String conteudo, LocalDateTime dataHora, Usuario usuario) {
+    /* Construtor padrão */
+    public Mensagem(String id, String conteudo, LocalDateTime dataEnvio, Usuario usuario) {
         this.id = id;
         this.conteudo = conteudo;
-        this.dataHora = dataHora;
+        this.dataEnvio = dataEnvio;
         this.usuario = usuario;
     }
 
@@ -43,12 +41,12 @@ public class Mensagem {
         this.conteudo = conteudo;
     }
 
-    public LocalDateTime getDataHora() {
-        return dataHora;
+    public LocalDateTime getDataEnvio() {
+        return dataEnvio;
     }
 
-    public void setDataHora(LocalDateTime dataHora) {
-        this.dataHora = dataHora;
+    public void setDataEnvio(LocalDateTime dataEnvio) {
+        this.dataEnvio = dataEnvio;
     }
 
     public Usuario getUsuario() {
@@ -61,7 +59,7 @@ public class Mensagem {
 
     @Override
     public String toString() {
-        return "Mensagem [id=" + id + ", conteudo=" + conteudo + ", dataHora=" + dataHora + ", usuario=" + usuario
+        return "Mensagem [id=" + id + ", conteudo=" + conteudo + ", dataEnvio=" + dataEnvio + ", usuario=" + usuario
                 + "]";
     }
 }
