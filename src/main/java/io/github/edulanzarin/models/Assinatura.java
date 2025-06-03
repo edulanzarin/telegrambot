@@ -16,7 +16,7 @@ public class Assinatura {
     private LocalDate dataFim;
     private Usuario usuario;
 
-    /* Construtor padrão */
+    // Construtor padrão
     public Assinatura(String id, PlanoAssinatura plano, LocalDate dataInicio, LocalDate dataFim, Usuario usuario) {
         this.id = id;
         this.plano = plano;
@@ -25,7 +25,7 @@ public class Assinatura {
         this.usuario = usuario;
     }
 
-    /* Getters e setters */
+    // Getters e setters
     public String getId() {
         return id;
     }
@@ -34,9 +34,7 @@ public class Assinatura {
         this.id = id;
     }
 
-    /*
-     * Assinatura terá um dos 4 planos disponíveis.
-     */
+    // Assinatura terá um dos 4 planos disponíveis
     public PlanoAssinatura getPlano() {
         return plano;
     }

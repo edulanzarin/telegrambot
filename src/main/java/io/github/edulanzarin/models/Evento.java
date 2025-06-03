@@ -13,7 +13,7 @@ public class Evento {
     private String tipoEvento;
     private LocalDateTime dataHora;
 
-    /* Getters e setters */
+    // Getters e setters
 
     public String getId() {
         return id;

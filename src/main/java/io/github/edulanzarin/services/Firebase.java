@@ -14,12 +14,27 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+/*
+ * Classe de serviço responsável pela integração com o Firebase Firestore.
+ * Esta classe realiza a configuração e inicialização do Firebase com base nas
+ * variáveis
+ * de ambiente (.env) e fornece métodos para leitura de dados armazenados no
+ * Firestore.
+ */
 public class Firebase {
 
+    // Instância compartilhada do Firestore
     private static Firestore db;
 
+    /*
+     * Inicializa a conexão com o Firebase usando variáveis de ambiente.
+     * As credenciais são carregadas em tempo de execução como um JSON construído
+     * a partir das variáveis de ambiente definidas no sistema, sem a necessidade de
+     * um arquivo físico.
+     */
     public static void initialize() {
         try {
+            // Construindo o JSON com as credenciais do Firebase
             JsonObject json = new JsonObject();
             json.addProperty("type", System.getenv("FIREBASE_TYPE"));
             json.addProperty("project_id", System.getenv("FIREBASE_PROJECT_ID"));
@@ -33,13 +48,16 @@ public class Firebase {
             json.addProperty("client_x509_cert_url", System.getenv("FIREBASE_CLIENT_CERT_URL"));
             json.addProperty("universe_domain", System.getenv("FIREBASE_UNIVERSE_DOMAIN"));
 
+            // Converte o JSON para InputStream necessário pelo FirebaseOptions
             InputStream serviceAccount = new ByteArrayInputStream(
                     json.toString().getBytes(StandardCharsets.UTF_8));
 
+            // Criação das opções de configuração do Firebase
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();
 
+            // Inicializa o app apenas se ainda não estiver ativo
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
                 System.out.println("✅ Firebase inicializado com variáveis de ambiente.");
@@ -47,6 +65,7 @@ public class Firebase {
                 System.out.println("⚠️ Firebase já estava inicializado.");
             }
 
+            // Obtém a instância do Firestore
             db = FirestoreClient.getFirestore();
 
         } catch (Exception e) {
@@ -55,6 +74,10 @@ public class Firebase {
         }
     }
 
+    /*
+     * Busca uma mensagem do Firestore na coleção 'respostas' pelo nome do documento
+     * (chave).
+     */
     public static String buscarMensagem(String chave) {
         try {
             DocumentReference docRef = db.collection("respostas").document(chave);

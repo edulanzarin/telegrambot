@@ -22,9 +22,8 @@ public class Resposta {
         return String.format(mensagem, usuario.getNome());
     }
 
-    /*
-     * Vídeo inicial enviado junto com a mensagem de bem-vindo
-     */
+    // Vídeo inicial enviado junto com a mensagem de bem-vindo
+
     public String videoInicial() {
         String mensagem = Firebase.buscarMensagem("video_inicial");
 

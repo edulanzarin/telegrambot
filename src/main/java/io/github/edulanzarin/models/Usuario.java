@@ -25,7 +25,7 @@ public class Usuario {
         this.nome = nome;
     }
 
-    /* Getters e setters */
+    // Getters e setters
     public String getId() {
         return id;
     }

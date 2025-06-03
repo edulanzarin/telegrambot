@@ -22,7 +22,7 @@ public class Mensagem {
         this.usuario = usuario;
     }
 
-    /* Getters e setters */
+    // Getters e setters
     public String getId() {
         return id;
     }
