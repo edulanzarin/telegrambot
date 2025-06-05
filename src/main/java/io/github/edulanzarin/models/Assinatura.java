@@ -2,31 +2,23 @@ package io.github.edulanzarin.models;
 
 import java.time.LocalDate;
 
-/*
- * Classe responsável por criar o modelo de assinatura.
- * Contém referência ao usuário e ao pagamento que a originou,
- * além dos dados do plano, datas de início e fim.
- */
 public class Assinatura {
-
     private String id;
-    private String usuarioId; // Referência ao usuário
-    private String pagamentoId; // Pagamento que originou esta assinatura
-    private PlanoAssinatura plano;
+    private String usuarioId;
+    private String pagamentoId;
     private LocalDate dataInicio;
     private LocalDate dataFim;
     private boolean ativa;
 
-    // Construtor padrão
+    // Construtor atualizado para remover o plano
     public Assinatura(String id, String usuarioId, String pagamentoId,
-            PlanoAssinatura plano, LocalDate dataInicio, LocalDate dataFim) {
+            LocalDate dataInicio, LocalDate dataFim, boolean ativa) {
         this.id = id;
         this.usuarioId = usuarioId;
         this.pagamentoId = pagamentoId;
-        this.plano = plano;
         this.dataInicio = dataInicio;
         this.dataFim = dataFim;
-        this.ativa = true; // Por padrão, a assinatura é criada como ativa
+        this.ativa = ativa;
     }
 
     // Getters e setters
@@ -52,14 +44,6 @@ public class Assinatura {
 
     public void setPagamentoId(String pagamentoId) {
         this.pagamentoId = pagamentoId;
-    }
-
-    public PlanoAssinatura getPlano() {
-        return plano;
-    }
-
-    public void setPlano(PlanoAssinatura plano) {
-        this.plano = plano;
     }
 
     public LocalDate getDataInicio() {
@@ -89,7 +73,7 @@ public class Assinatura {
     @Override
     public String toString() {
         return "Assinatura [id=" + id + ", usuarioId=" + usuarioId + ", pagamentoId=" + pagamentoId
-                + ", plano=" + plano + ", dataInicio=" + dataInicio + ", dataFim=" + dataFim
+                + ", dataInicio=" + dataInicio + ", dataFim=" + dataFim
                 + ", ativa=" + ativa + "]";
     }
 }
