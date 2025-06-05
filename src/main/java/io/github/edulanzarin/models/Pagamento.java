@@ -5,24 +5,27 @@ import java.time.LocalDateTime;
 /*
  * Classe responsável pelo modelo do Pagamento.
  * O id do pagamento será retirado do próprio id gerado pelo Mercado Pago,
- * a data de expiração do pagamento será sempre de 3 horas e o restante
- * das informações serão retiradas do objeto Assinatura.
+ * contém referência ao usuário e ao plano solicitado, status do pagamento
+ * e data de expiração (3 horas após criação).
  */
 public class Pagamento {
 
     private String id;
-    private Assinatura assinatura;
-    private final LocalDateTime vencimento;
+    private String usuarioId; // Referência ao usuário
+    private PlanoAssinatura plano; // Plano solicitado
+    private LocalDateTime vencimento;
+    private String status; // "PENDENTE", "APROVADO", "RECUSADO", "CANCELADO"
 
-    // Construtor com duração do pagamento sempre de 3 horas
-    public Pagamento(String id, Assinatura assinatura) {
+    // Construtor com status padrão como PENDENTE
+    public Pagamento(String id, String usuarioId, PlanoAssinatura plano) {
         this.id = id;
-        this.assinatura = assinatura;
+        this.usuarioId = usuarioId;
+        this.plano = plano;
         this.vencimento = LocalDateTime.now().plusHours(3);
+        this.status = "PENDENTE";
     }
 
     // Getters e setters
-
     public String getId() {
         return id;
     }
@@ -31,20 +34,37 @@ public class Pagamento {
         this.id = id;
     }
 
-    public void setAssinatura(Assinatura assinatura) {
-        this.assinatura = assinatura;
+    public String getUsuarioId() {
+        return usuarioId;
     }
 
-    public Assinatura getAssinatura() {
-        return assinatura;
+    public void setUsuarioId(String usuarioId) {
+        this.usuarioId = usuarioId;
+    }
+
+    public PlanoAssinatura getPlano() {
+        return plano;
+    }
+
+    public void setPlano(PlanoAssinatura plano) {
+        this.plano = plano;
     }
 
     public LocalDateTime getVencimento() {
         return vencimento;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
-        return "Pagamento [id=" + id + ", assinatura=" + assinatura + " vencimento=" + vencimento + ", ]";
+        return "Pagamento [id=" + id + ", usuarioId=" + usuarioId + ", plano=" + plano
+                + ", vencimento=" + vencimento + ", status=" + status + "]";
     }
 }

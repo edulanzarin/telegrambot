@@ -4,25 +4,29 @@ import java.time.LocalDate;
 
 /*
  * Classe responsável por criar o modelo de assinatura.
- * Usando "TipoAssinatura" para representação do plano e assinatura.
- * id da assinatura (aleatório), plano (há 4 planos), 
- * data de início da assinatura e data do fim e usuario ao qual pertence a assinatura. 
+ * Contém referência ao usuário e ao pagamento que a originou,
+ * além dos dados do plano, datas de início e fim.
  */
 public class Assinatura {
 
     private String id;
+    private String usuarioId; // Referência ao usuário
+    private String pagamentoId; // Pagamento que originou esta assinatura
     private PlanoAssinatura plano;
     private LocalDate dataInicio;
     private LocalDate dataFim;
-    private Usuario usuario;
+    private boolean ativa;
 
     // Construtor padrão
-    public Assinatura(String id, PlanoAssinatura plano, LocalDate dataInicio, LocalDate dataFim, Usuario usuario) {
+    public Assinatura(String id, String usuarioId, String pagamentoId,
+            PlanoAssinatura plano, LocalDate dataInicio, LocalDate dataFim) {
         this.id = id;
+        this.usuarioId = usuarioId;
+        this.pagamentoId = pagamentoId;
         this.plano = plano;
         this.dataInicio = dataInicio;
         this.dataFim = dataFim;
-        this.usuario = usuario;
+        this.ativa = true; // Por padrão, a assinatura é criada como ativa
     }
 
     // Getters e setters
@@ -34,7 +38,22 @@ public class Assinatura {
         this.id = id;
     }
 
-    // Assinatura terá um dos 4 planos disponíveis
+    public String getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(String usuarioId) {
+        this.usuarioId = usuarioId;
+    }
+
+    public String getPagamentoId() {
+        return pagamentoId;
+    }
+
+    public void setPagamentoId(String pagamentoId) {
+        this.pagamentoId = pagamentoId;
+    }
+
     public PlanoAssinatura getPlano() {
         return plano;
     }
@@ -59,17 +78,18 @@ public class Assinatura {
         this.dataFim = dataFim;
     }
 
-    public Usuario getUsuario() {
-        return usuario;
+    public boolean isAtiva() {
+        return ativa;
     }
 
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
+    public void setAtiva(boolean ativa) {
+        this.ativa = ativa;
     }
 
     @Override
     public String toString() {
-        return "Assinatura [id=" + id + ", plano=" + plano + ", dataInicio=" + dataInicio + ", dataFim=" + dataFim
-                + ", usuario=" + usuario + "]";
+        return "Assinatura [id=" + id + ", usuarioId=" + usuarioId + ", pagamentoId=" + pagamentoId
+                + ", plano=" + plano + ", dataInicio=" + dataInicio + ", dataFim=" + dataFim
+                + ", ativa=" + ativa + "]";
     }
 }

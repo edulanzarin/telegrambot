@@ -11,6 +11,8 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
 import com.google.gson.JsonObject;
 
+import io.github.edulanzarin.models.Assinatura;
+import io.github.edulanzarin.models.Pagamento;
 import io.github.edulanzarin.models.Usuario;
 
 import java.io.ByteArrayInputStream;
@@ -139,5 +141,13 @@ public class Firebase {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static boolean cadastrarAssinatura(Usuario usuario, Assinatura assinatura) {
+        return false;
+    }
+
+    public static boolean cadastrarPagamento(Usuario usuario, Assinatura assinatura, Pagamento pagamento) {
+        return false;
     }
 }
