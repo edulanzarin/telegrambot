@@ -11,16 +11,14 @@ import java.time.LocalDateTime;
 public class Pagamento {
 
     private String id;
-    private String usuarioId; // Referência ao usuário
-    private PlanoAssinatura plano; // Plano solicitado
+    private String usuarioId;
     private LocalDateTime vencimento;
     private String status; // "PENDENTE", "APROVADO", "RECUSADO", "CANCELADO"
 
     // Construtor com status padrão como PENDENTE
-    public Pagamento(String id, String usuarioId, PlanoAssinatura plano) {
+    public Pagamento(String id, String usuarioId) {
         this.id = id;
         this.usuarioId = usuarioId;
-        this.plano = plano;
         this.vencimento = LocalDateTime.now().plusHours(3);
         this.status = "PENDENTE";
     }
@@ -42,14 +40,6 @@ public class Pagamento {
         this.usuarioId = usuarioId;
     }
 
-    public PlanoAssinatura getPlano() {
-        return plano;
-    }
-
-    public void setPlano(PlanoAssinatura plano) {
-        this.plano = plano;
-    }
-
     public LocalDateTime getVencimento() {
         return vencimento;
     }
@@ -64,7 +54,7 @@ public class Pagamento {
 
     @Override
     public String toString() {
-        return "Pagamento [id=" + id + ", usuarioId=" + usuarioId + ", plano=" + plano
-                + ", vencimento=" + vencimento + ", status=" + status + "]";
+        return "Pagamento [id=" + id + ", usuarioId=" + usuarioId + ", vencimento=" + vencimento + ", status=" + status
+                + "]";
     }
 }

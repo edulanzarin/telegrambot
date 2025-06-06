@@ -13,7 +13,6 @@ import com.google.gson.JsonObject;
 
 import io.github.edulanzarin.models.Assinatura;
 import io.github.edulanzarin.models.Pagamento;
-import io.github.edulanzarin.models.PlanoAssinatura;
 import io.github.edulanzarin.models.Usuario;
 
 import java.io.ByteArrayInputStream;
@@ -183,7 +182,6 @@ public class Firebase {
             Map<String, Object> data = new HashMap<>();
             data.put("id", pagamento.getId());
             data.put("usuarioId", pagamento.getUsuarioId());
-            data.put("plano", pagamento.getPlano().name());
             data.put("vencimento", Timestamp.of(Date.from(
                     pagamento.getVencimento().atZone(ZoneId.systemDefault()).toInstant())));
             data.put("status", "PENDENTE"); // Define status inicial como pendente
@@ -236,8 +234,6 @@ public class Firebase {
                 throw new IllegalStateException("Dados incompletos no pagamento");
             }
 
-            // Converte o plano de string para enum
-            PlanoAssinatura plano = PlanoAssinatura.valueOf(planoStr);
             // Define a data de início como hoje
             LocalDate inicio = LocalDate.now();
 
@@ -251,13 +247,6 @@ public class Firebase {
             assinaturaData.put("pagamentoId", pagamentoId);
             assinaturaData.put("dataInicio", Timestamp.of(Date.from(
                     inicio.atStartOfDay(ZoneId.systemDefault()).toInstant())));
-
-            // Se o plano tiver duração definida, calcula a data de término
-            if (plano.getDuracaoMeses() != -1) {
-                LocalDate fim = inicio.plusMonths(plano.getDuracaoMeses());
-                assinaturaData.put("dataFim", Timestamp.of(Date.from(
-                        fim.atStartOfDay(ZoneId.systemDefault()).toInstant())));
-            }
 
             // Define a assinatura como ativa
             assinaturaData.put("ativa", true);
