@@ -14,13 +14,17 @@ public class Pagamento {
     private String usuarioId;
     private LocalDateTime vencimento;
     private String status; // "PENDENTE", "APROVADO", "RECUSADO", "CANCELADO"
+    private String plano; // "MENSAL", "TRIMESTRAL", "SEMESTRAL", "VITALICIO"
+    private double valor;
 
     // Construtor com status padrão como PENDENTE
-    public Pagamento(String id, String usuarioId) {
+    public Pagamento(String id, String usuarioId, String plano, double valor) {
         this.id = id;
         this.usuarioId = usuarioId;
         this.vencimento = LocalDateTime.now().plusHours(3);
         this.status = "PENDENTE";
+        this.plano = plano;
+        this.valor = valor;
     }
 
     // Getters e setters
@@ -52,9 +56,17 @@ public class Pagamento {
         this.status = status;
     }
 
+    public String getPlano() {
+        return plano;
+    }
+
+    public double getValor() {
+        return valor;
+    }
+
     @Override
     public String toString() {
         return "Pagamento [id=" + id + ", usuarioId=" + usuarioId + ", vencimento=" + vencimento + ", status=" + status
-                + "]";
+                + ", plano=" + plano + ", valor=" + valor + "]";
     }
 }
