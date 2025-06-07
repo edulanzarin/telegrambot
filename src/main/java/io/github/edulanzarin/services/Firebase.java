@@ -100,6 +100,7 @@ public class Firebase {
      */
     private static void checkInitialization() {
         if (db == null) {
+            logger.log(Level.SEVERE, "Firebase não foi inicializado corretamente");
             throw new IllegalStateException("Firebase não foi inicializado corretamente");
         }
     }
@@ -133,10 +134,10 @@ public class Firebase {
             data.put("assinaturaId", null);
 
             docRef.set(data).get();
-            logger.log(Level.INFO, "Usuário {0} cadastrado", usuario.getId());
+            logger.log(Level.INFO, "Usuário {0} cadastrado com sucesso", usuario.getId());
             return true;
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Erro ao cadastrar usuário", e);
+            logger.log(Level.SEVERE, "Erro ao cadastrar usuário " + usuario.getId(), e);
             return false;
         }
     }
@@ -149,18 +150,28 @@ public class Firebase {
      */
     public static Usuario buscarUsuario(String usuarioId) throws ExecutionException, InterruptedException {
         checkInitialization();
-        DocumentSnapshot doc = db.collection("usuarios").document(usuarioId).get().get();
+        logger.log(Level.INFO, "Buscando usuário {0}", usuarioId);
 
-        if (!doc.exists()) {
-            return null;
+        try {
+            DocumentSnapshot doc = db.collection("usuarios").document(usuarioId).get().get();
+
+            if (!doc.exists()) {
+                logger.log(Level.INFO, "Usuário {0} não encontrado", usuarioId);
+                return null;
+            }
+
+            Usuario usuario = new Usuario(
+                    doc.getString("id"),
+                    doc.getString("usuario"),
+                    doc.getString("nome"));
+            usuario.setAssinaturaId(doc.getString("assinaturaId"));
+
+            logger.log(Level.INFO, "Usuário {0} encontrado com sucesso", usuarioId);
+            return usuario;
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Erro ao buscar usuário " + usuarioId, e);
+            throw e;
         }
-
-        Usuario usuario = new Usuario(
-                doc.getString("id"),
-                doc.getString("usuario"),
-                doc.getString("nome"));
-        usuario.setAssinaturaId(doc.getString("assinaturaId"));
-        return usuario;
     }
 
     /*
@@ -177,6 +188,8 @@ public class Firebase {
      */
     public static String criarPagamento(Pagamento pagamento) {
         checkInitialization();
+        logger.log(Level.INFO, "Criando pagamento para usuário {0}", pagamento.getUsuarioId());
+
         try {
             DocumentReference ref = db.collection("pagamentos").document(pagamento.getId());
 
@@ -190,9 +203,10 @@ public class Firebase {
             data.put("valor", pagamento.getValor());
 
             ref.set(data).get();
+            logger.log(Level.INFO, "Pagamento {0} criado com sucesso", pagamento.getId());
             return ref.getId();
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Erro ao criar pagamento", e);
+            logger.log(Level.SEVERE, "Erro ao criar pagamento " + pagamento.getId(), e);
             return null;
         }
     }
@@ -205,16 +219,20 @@ public class Firebase {
      */
     public static boolean confirmarPagamento(String pagamentoId) {
         checkInitialization();
+        logger.log(Level.INFO, "Confirmando pagamento {0}", pagamentoId);
+
         try {
             // 1. Atualizar status do pagamento
             db.collection("pagamentos").document(pagamentoId)
                     .update("status", "APROVADO");
+            logger.log(Level.INFO, "Status do pagamento {0} atualizado para APROVADO", pagamentoId);
 
             // 2. Buscar dados do pagamento
             DocumentSnapshot pagamentoDoc = db.collection("pagamentos")
                     .document(pagamentoId).get().get();
 
             if (!pagamentoDoc.exists()) {
+                logger.log(Level.WARNING, "Pagamento {0} não encontrado", pagamentoId);
                 throw new IllegalArgumentException("Pagamento não encontrado");
             }
 
@@ -222,6 +240,7 @@ public class Firebase {
             String plano = pagamentoDoc.getString("plano");
 
             if (usuarioId == null || plano == null) {
+                logger.log(Level.WARNING, "Dados incompletos no pagamento {0}", pagamentoId);
                 throw new IllegalStateException("Dados incompletos no pagamento");
             }
 
@@ -249,14 +268,18 @@ public class Firebase {
                     assinatura.getDataFim().atStartOfDay(ZoneId.systemDefault()).toInstant())));
 
             assinaturaRef.set(assinaturaData).get();
+            logger.log(Level.INFO, "Assinatura {0} criada com sucesso para o usuário {1}",
+                    new Object[] { assinaturaRef.getId(), usuarioId });
 
             // 4. Atualizar usuário com ID da assinatura
             db.collection("usuarios").document(usuarioId)
                     .update("assinaturaId", assinaturaRef.getId());
+            logger.log(Level.INFO, "Usuário {0} atualizado com a assinatura {1}",
+                    new Object[] { usuarioId, assinaturaRef.getId() });
 
             return true;
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Erro ao confirmar pagamento", e);
+            logger.log(Level.SEVERE, "Erro ao confirmar pagamento " + pagamentoId, e);
             return false;
         }
     }
@@ -275,6 +298,7 @@ public class Firebase {
      */
     public static Assinatura buscarAssinatura(String assinaturaId) throws ExecutionException, InterruptedException {
         checkInitialization();
+        logger.log(Level.INFO, "Buscando assinatura {0}", assinaturaId);
 
         try {
             DocumentSnapshot doc = db.collection("assinaturas").document(assinaturaId).get().get();
@@ -282,6 +306,7 @@ public class Firebase {
             // Verifica se o documento existe e contém os campos obrigatórios
             if (!doc.exists() || !doc.contains("dataInicio") || !doc.contains("usuarioId") ||
                     !doc.contains("pagamentoId") || !doc.contains("ativa") || !doc.contains("tipoPlano")) {
+                logger.log(Level.WARNING, "Assinatura {0} não encontrada ou dados incompletos", assinaturaId);
                 return null;
             }
 
@@ -309,7 +334,7 @@ public class Firebase {
             }
 
             // Usando o construtor que calcula a dataFim automaticamente
-            return new Assinatura(
+            Assinatura assinatura = new Assinatura(
                     doc.getString("id"),
                     doc.getString("usuarioId"),
                     doc.getString("pagamentoId"),
@@ -317,9 +342,12 @@ public class Firebase {
                     tipoPlano,
                     ativa);
 
+            logger.log(Level.INFO, "Assinatura {0} encontrada com sucesso", assinaturaId);
+            return assinatura;
+
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Erro ao buscar assinatura " + assinaturaId, e);
-            return null;
+            throw e;
         }
     }
 
@@ -331,20 +359,33 @@ public class Firebase {
      */
     public static boolean verificarAssinaturaAtiva(String usuarioId) throws ExecutionException, InterruptedException {
         checkInitialization();
+        logger.log(Level.INFO, "Verificando assinatura ativa para usuário {0}", usuarioId);
 
-        Usuario usuario = buscarUsuario(usuarioId);
-        if (usuario == null || usuario.getAssinaturaId() == null) {
-            return false;
+        try {
+            Usuario usuario = buscarUsuario(usuarioId);
+            if (usuario == null || usuario.getAssinaturaId() == null) {
+                logger.log(Level.INFO, "Usuário {0} não possui assinatura ou não existe", usuarioId);
+                return false;
+            }
+
+            Assinatura assinatura = buscarAssinatura(usuario.getAssinaturaId());
+            if (assinatura == null) {
+                logger.log(Level.INFO, "Assinatura do usuário {0} não encontrada", usuarioId);
+                return false;
+            }
+
+            LocalDate hoje = LocalDate.now();
+            boolean ativa = assinatura.isAtiva() &&
+                    (assinatura.getDataFim() == null || hoje.isBefore(assinatura.getDataFim()));
+
+            logger.log(Level.INFO, "Status da assinatura para usuário {0}: {1}",
+                    new Object[] { usuarioId, ativa ? "ATIVA" : "INATIVA" });
+
+            return ativa;
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Erro ao verificar assinatura ativa para usuário " + usuarioId, e);
+            throw e;
         }
-
-        Assinatura assinatura = buscarAssinatura(usuario.getAssinaturaId());
-        if (assinatura == null) {
-            return false;
-        }
-
-        LocalDate hoje = LocalDate.now();
-        return assinatura.isAtiva() &&
-                (assinatura.getDataFim() == null || hoje.isBefore(assinatura.getDataFim()));
     }
 
     /**
@@ -355,9 +396,12 @@ public class Firebase {
      */
     public static boolean cancelarAssinatura(String assinaturaId) {
         checkInitialization();
+        logger.log(Level.INFO, "Cancelando assinatura {0}", assinaturaId);
+
         try {
             db.collection("assinaturas").document(assinaturaId)
                     .update("ativa", false);
+            logger.log(Level.INFO, "Assinatura {0} cancelada com sucesso", assinaturaId);
             return true;
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Erro ao cancelar assinatura " + assinaturaId, e);
@@ -378,16 +422,23 @@ public class Firebase {
      * @return Mensagem encontrada ou null
      */
     public static String buscarMensagem(String chave) {
+        checkInitialization();
+        logger.log(Level.INFO, "Buscando mensagem com chave {0}", chave);
+
         try {
             DocumentReference docRef = db.collection("respostas").document(chave);
             DocumentSnapshot document = docRef.get().get();
 
             if (document.exists()) {
+                logger.log(Level.INFO, "Mensagem com chave {0} encontrada", chave);
                 return document.getString("mensagem");
             }
+
+            logger.log(Level.INFO, "Mensagem com chave {0} não encontrada", chave);
+            return null;
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Erro ao buscar mensagem do Firebase", e);
+            logger.log(Level.SEVERE, "Erro ao buscar mensagem com chave " + chave, e);
+            return null;
         }
-        return null;
     }
 }
