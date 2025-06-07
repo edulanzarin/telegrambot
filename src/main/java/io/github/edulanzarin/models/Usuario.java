@@ -1,32 +1,35 @@
 package io.github.edulanzarin.models;
 
-/*
- * Classe responsável pelo modelo do usuário, onde as informações do usuários
- * serão coletadas pelo próprio bot no Telegram e a assinaturaId será
- * atribuída como null sempre que um usuário for criado.
- * Cada usuário pode ter apenas uma assinatura ativa, sendo necessário um controle
- * de vencimento das assinaturas, permitindo que o usuário tenha privilégios VIP
- * mesmo um dia após o vencimento (tempo para enviar mensagem de renovação e assinatura).
+/**
+ * Representa um usuário cadastrado proveniente de uma interação
+ * com o bot do Telegram. Cada usuário pode ter no máximo uma assinatura ativa,
+ * identificada por um ID de assinatura.
+ * 
+ * A associação com a assinatura ocorre após a confirmação de um pagamento.
  */
 public class Usuario {
 
-    private String id;
-    private String usuario; // username do Telegram
-    private String nome; // nome completo do usuário
-    private String assinaturaId; // ID da assinatura ativa (pode ser null)
+    private String id; // ID único do usuário
+    private String usuario; // Nome de usuário no Telegram
+    private String nome; // Nome completo do usuário
+    private String assinaturaId; // ID da assinatura ativa (null como padrão)
 
-    /*
-     * Construtor padrão sem assinatura, pois ela será inserida apenas quando
-     * o usuário realizar uma compra e o pagamento for confirmado.
+    /**
+     * Cria uma nova instância de {@code Usuario} sem assinatura associada
+     * inicialmente.
+     * 
+     * @param id      Identificador único do usuário
+     * @param usuario Nome de usuário no Telegram
+     * @param nome    Nome completo do usuário
      */
     public Usuario(String id, String usuario, String nome) {
         this.id = id;
         this.usuario = usuario;
         this.nome = nome;
-        this.assinaturaId = null; // Explicitamente null
+        this.assinaturaId = null;
     }
 
-    // Getters e setters
+    // Getters e setters padrão
     public String getId() {
         return id;
     }
@@ -60,9 +63,10 @@ public class Usuario {
     }
 
     /**
-     * Método auxiliar para verificar se o usuário tem uma assinatura ativa
-     * (considerando que a assinatura pode estar expirada mas ainda dentro do
-     * período de cortesia)
+     * Verifica se o usuário possui uma assinatura ativa associada.
+     * 
+     * @return {@code true} se houver uma assinatura ativa; {@code false} caso
+     *         contrário
      */
     public boolean temAssinaturaAtiva() {
         return assinaturaId != null && !assinaturaId.isEmpty();

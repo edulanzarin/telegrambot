@@ -2,17 +2,41 @@ package io.github.edulanzarin.models;
 
 import java.time.LocalDate;
 
+/**
+ * Representa uma assinatura de um usuário, contendo informações sobre o
+ * plano contratado, o período de validade, o status de ativação e a
+ * referência ao pagamento relacionado.
+ * 
+ * Tipos de plano disponíveis:
+ * - "MENSAL"
+ * - "TRIMESTRAL"
+ * - "SEMESTRAL"
+ * - "VITALICIO"
+ * 
+ * A data de término da assinatura é calculada automaticamente com base no tipo
+ * de plano.
+ */
 public class Assinatura {
 
-    private String id;
-    private String usuarioId;
-    private String pagamentoId;
-    private LocalDate dataInicio;
-    private LocalDate dataFim;
-    private boolean ativa;
-    private String tipoPlano; // "MENSAL", "TRIMESTRAL", "SEMESTRAL", "VITALICIO"
+    private String id; // ID da assinatura
+    private String usuarioId; // ID do usuário associado
+    private String pagamentoId; // ID do pagamento correspondente
+    private LocalDate dataInicio; // Data de início da assinatura
+    private LocalDate dataFim; // Data de término da assinatura (calculada)
+    private boolean ativa; // Status da assinatura
+    private String tipoPlano; // Tipo de plano contratado
 
-    // Construtor
+    /**
+     * Cria uma nova instância de {@code Assinatura}, com a data de término
+     * definida automaticamente de acordo com o tipo de plano.
+     * 
+     * @param id          Identificador único da assinatura
+     * @param usuarioId   ID do usuário associado
+     * @param pagamentoId ID do pagamento vinculado
+     * @param dataInicio  Data de início da assinatura
+     * @param tipoPlano   Tipo do plano ("MENSAL", "TRIMESTRAL", etc.)
+     * @param ativa       Status de ativação (true para ativa)
+     */
     public Assinatura(String id, String usuarioId, String pagamentoId,
             LocalDate dataInicio, String tipoPlano, boolean ativa) {
         this.id = id;
@@ -24,7 +48,7 @@ public class Assinatura {
         this.dataFim = calcularDataFim(dataInicio, tipoPlano);
     }
 
-    // Getters e setters
+    // Getters e setters padrão
     public String getId() {
         return id;
     }
@@ -77,22 +101,30 @@ public class Assinatura {
         return tipoPlano;
     }
 
-    // Método para calcular a data de término baseado no plano
+    /**
+     * Calcula a data de término da assinatura com base no tipo de plano contratado.
+     *
+     * @param inicio    Data de início da assinatura
+     * @param tipoPlano Tipo do plano ("MENSAL", "TRIMESTRAL", etc.)
+     * @return Data de término calculada
+     */
     private LocalDate calcularDataFim(LocalDate inicio, String tipoPlano) {
-        if ("VITALICIO".equals(tipoPlano)) {
-            return inicio.plusYears(100); // 100 anos = vitalício
-        } else if ("SEMESTRAL".equals(tipoPlano)) {
-            return inicio.plusMonths(6);
-        } else if ("TRIMESTRAL".equals(tipoPlano)) {
-            return inicio.plusMonths(3);
-        } else { // MENSAL
-            return inicio.plusMonths(1);
+        switch (tipoPlano) {
+            case "VITALICIO":
+                return inicio.plusYears(100); // Simula plano vitalício
+            case "SEMESTRAL":
+                return inicio.plusMonths(6);
+            case "TRIMESTRAL":
+                return inicio.plusMonths(3);
+            default:
+                return inicio.plusMonths(1); // Plano mensal como padrão
         }
     }
 
     @Override
     public String toString() {
-        return "Assinatura [id=" + id + ", usuarioId=" + usuarioId + ", pagamentoId=" + pagamentoId + ", dataInicio="
-                + dataInicio + ", dataFim=" + dataFim + ", ativa=" + ativa + ", tipoPlano=" + tipoPlano + "]";
+        return "Assinatura [id=" + id + ", usuarioId=" + usuarioId + ", pagamentoId=" + pagamentoId
+                + ", dataInicio=" + dataInicio + ", dataFim=" + dataFim + ", ativa=" + ativa
+                + ", tipoPlano=" + tipoPlano + "]";
     }
 }
