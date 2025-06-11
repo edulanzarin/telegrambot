@@ -1,7 +1,7 @@
 package io.github.edulanzarin.utils;
 
 import io.github.edulanzarin.models.Usuario;
-import io.github.edulanzarin.services.Firebase;
+import io.github.edulanzarin.services.FirebaseService;
 
 public class Respostas {
     private static Respostas instance;
@@ -52,12 +52,12 @@ public class Respostas {
 
     // Métodos auxiliares
     private String buscarMensagemDireta(String chave) {
-        String mensagem = Firebase.buscarMensagem(chave);
+        String mensagem = FirebaseService.buscarMensagem(chave);
         return mensagem != null ? mensagem : "Mensagem não configurada: " + chave;
     }
 
     private String formatarMensagem(String chave, Object... args) {
-        String mensagem = Firebase.buscarMensagem(chave);
+        String mensagem = FirebaseService.buscarMensagem(chave);
         return mensagem != null ? String.format(mensagem, args) : "Mensagem não configurada: " + chave;
     }
 }

@@ -33,11 +33,10 @@ import java.util.logging.Logger;
  *
  * Todas as operações são thread-safe e incluem validações robustas.
  */
-public class Firebase {
+public class FirebaseService {
 
     private static final Logger logger = Logger.getLogger(
-        Firebase.class.getName()
-    );
+            FirebaseService.class.getName());
     private static volatile Firestore db;
     private static final Object initLock = new Object();
 
@@ -49,17 +48,17 @@ public class Firebase {
 
     // Campos obrigatórios das variáveis de ambiente
     private static final String[] REQUIRED_ENV_VARS = {
-        "FIREBASE_TYPE",
-        "FIREBASE_PROJECT_ID",
-        "FIREBASE_PRIVATE_KEY_ID",
-        "FIREBASE_PRIVATE_KEY",
-        "FIREBASE_CLIENT_EMAIL",
-        "FIREBASE_CLIENT_ID",
-        "FIREBASE_AUTH_URI",
-        "FIREBASE_TOKEN_URI",
-        "FIREBASE_AUTH_PROVIDER_CERT_URL",
-        "FIREBASE_CLIENT_CERT_URL",
-        "FIREBASE_UNIVERSE_DOMAIN",
+            "FIREBASE_TYPE",
+            "FIREBASE_PROJECT_ID",
+            "FIREBASE_PRIVATE_KEY_ID",
+            "FIREBASE_PRIVATE_KEY",
+            "FIREBASE_CLIENT_EMAIL",
+            "FIREBASE_CLIENT_ID",
+            "FIREBASE_AUTH_URI",
+            "FIREBASE_TOKEN_URI",
+            "FIREBASE_AUTH_PROVIDER_CERT_URL",
+            "FIREBASE_CLIENT_CERT_URL",
+            "FIREBASE_UNIVERSE_DOMAIN",
     };
 
     /*
@@ -69,55 +68,54 @@ public class Firebase {
      */
 
     /**
-     * Inicializa automaticamente a conexão com o Firebase quando a classe é carregada
+     * Inicializa automaticamente a conexão com o Firebase quando a classe é
+     * carregada
      */
     static {
         initialize();
     }
 
     /**
-     * Configura e inicializa a conexão com o Firebase Firestore de forma thread-safe.
+     * Configura e inicializa a conexão com o Firebase Firestore de forma
+     * thread-safe.
      * Usa credenciais das variáveis de ambiente com validação robusta.
      *
      * @throws FirebaseInitializationException se a inicialização falhar
      */
     public static void initialize() {
-        if (db != null) return;
+        if (db != null)
+            return;
 
         synchronized (initLock) {
-            if (db != null) return; // Double-check locking
+            if (db != null)
+                return; // Double-check locking
 
             try {
                 validateEnvironmentVariables();
 
                 JsonObject credentials = buildCredentialsJson();
                 FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(
-                        GoogleCredentials.fromStream(
-                            new ByteArrayInputStream(
-                                credentials
-                                    .toString()
-                                    .getBytes(StandardCharsets.UTF_8)
-                            )
-                        )
-                    )
-                    .build();
+                        .setCredentials(
+                                GoogleCredentials.fromStream(
+                                        new ByteArrayInputStream(
+                                                credentials
+                                                        .toString()
+                                                        .getBytes(StandardCharsets.UTF_8))))
+                        .build();
 
                 if (FirebaseApp.getApps().isEmpty()) {
                     FirebaseApp.initializeApp(options);
                     logger.log(
-                        Level.INFO,
-                        "✅ Firebase inicializado com sucesso"
-                    );
+                            Level.INFO,
+                            "✅ Firebase inicializado com sucesso");
                 }
 
                 db = FirestoreClient.getFirestore();
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "❌ Erro ao inicializar Firebase", e);
                 throw new FirebaseInitializationException(
-                    "Falha na inicialização do Firebase",
-                    e
-                );
+                        "Falha na inicialização do Firebase",
+                        e);
             }
         }
     }
@@ -130,8 +128,7 @@ public class Firebase {
             String value = System.getenv(envVar);
             if (value == null || value.trim().isEmpty()) {
                 throw new IllegalStateException(
-                    "Variável de ambiente obrigatória não encontrada: " + envVar
-                );
+                        "Variável de ambiente obrigatória não encontrada: " + envVar);
             }
         }
     }
@@ -144,32 +141,26 @@ public class Firebase {
         json.addProperty("type", System.getenv("FIREBASE_TYPE"));
         json.addProperty("project_id", System.getenv("FIREBASE_PROJECT_ID"));
         json.addProperty(
-            "private_key_id",
-            System.getenv("FIREBASE_PRIVATE_KEY_ID")
-        );
+                "private_key_id",
+                System.getenv("FIREBASE_PRIVATE_KEY_ID"));
         json.addProperty(
-            "private_key",
-            System.getenv("FIREBASE_PRIVATE_KEY").replace("\\n", "\n")
-        );
+                "private_key",
+                System.getenv("FIREBASE_PRIVATE_KEY").replace("\\n", "\n"));
         json.addProperty(
-            "client_email",
-            System.getenv("FIREBASE_CLIENT_EMAIL")
-        );
+                "client_email",
+                System.getenv("FIREBASE_CLIENT_EMAIL"));
         json.addProperty("client_id", System.getenv("FIREBASE_CLIENT_ID"));
         json.addProperty("auth_uri", System.getenv("FIREBASE_AUTH_URI"));
         json.addProperty("token_uri", System.getenv("FIREBASE_TOKEN_URI"));
         json.addProperty(
-            "auth_provider_x509_cert_url",
-            System.getenv("FIREBASE_AUTH_PROVIDER_CERT_URL")
-        );
+                "auth_provider_x509_cert_url",
+                System.getenv("FIREBASE_AUTH_PROVIDER_CERT_URL"));
         json.addProperty(
-            "client_x509_cert_url",
-            System.getenv("FIREBASE_CLIENT_CERT_URL")
-        );
+                "client_x509_cert_url",
+                System.getenv("FIREBASE_CLIENT_CERT_URL"));
         json.addProperty(
-            "universe_domain",
-            System.getenv("FIREBASE_UNIVERSE_DOMAIN")
-        );
+                "universe_domain",
+                System.getenv("FIREBASE_UNIVERSE_DOMAIN"));
         return json;
     }
 
@@ -181,12 +172,10 @@ public class Firebase {
     private static void checkInitialization() {
         if (db == null) {
             logger.log(
-                Level.SEVERE,
-                "Firebase não foi inicializado corretamente"
-            );
+                    Level.SEVERE,
+                    "Firebase não foi inicializado corretamente");
             throw new IllegalStateException(
-                "Firebase não foi inicializado corretamente"
-            );
+                    "Firebase não foi inicializado corretamente");
         }
     }
 
@@ -209,15 +198,14 @@ public class Firebase {
 
         try {
             DocumentReference docRef = db
-                .collection(COLLECTION_USUARIOS)
-                .document(usuario.getId());
+                    .collection(COLLECTION_USUARIOS)
+                    .document(usuario.getId());
 
             if (docRef.get().get().exists()) {
                 logger.log(
-                    Level.INFO,
-                    "Usuário {0} já existe",
-                    usuario.getId()
-                );
+                        Level.INFO,
+                        "Usuário {0} já existe",
+                        usuario.getId());
                 return false;
             }
 
@@ -225,28 +213,24 @@ public class Firebase {
             docRef.set(data).get();
 
             logger.log(
-                Level.INFO,
-                "Usuário {0} cadastrado com sucesso",
-                usuario.getId()
-            );
+                    Level.INFO,
+                    "Usuário {0} cadastrado com sucesso",
+                    usuario.getId());
             return true;
         } catch (ExecutionException | InterruptedException e) {
             Thread.currentThread().interrupt();
             logger.log(
-                Level.SEVERE,
-                "Erro ao cadastrar usuário " + usuario.getId(),
-                e
-            );
+                    Level.SEVERE,
+                    "Erro ao cadastrar usuário " + usuario.getId(),
+                    e);
             throw new FirebaseOperationException(
-                "Erro ao cadastrar usuário",
-                e
-            );
+                    "Erro ao cadastrar usuário",
+                    e);
         } catch (Exception e) {
             logger.log(
-                Level.SEVERE,
-                "Erro inesperado ao cadastrar usuário " + usuario.getId(),
-                e
-            );
+                    Level.SEVERE,
+                    "Erro inesperado ao cadastrar usuário " + usuario.getId(),
+                    e);
             return false;
         }
     }
@@ -283,11 +267,11 @@ public class Firebase {
      *
      * @param usuarioId ID do usuário
      * @return Objeto Usuario ou null se não encontrado
-     * @throws ExecutionException se houver erro na execução
+     * @throws ExecutionException   se houver erro na execução
      * @throws InterruptedException se a operação for interrompida
      */
     public static Usuario buscarUsuario(String usuarioId)
-        throws ExecutionException, InterruptedException {
+            throws ExecutionException, InterruptedException {
         validateUserId(usuarioId);
         checkInitialization();
 
@@ -295,10 +279,10 @@ public class Firebase {
 
         try {
             DocumentSnapshot doc = db
-                .collection(COLLECTION_USUARIOS)
-                .document(usuarioId)
-                .get()
-                .get();
+                    .collection(COLLECTION_USUARIOS)
+                    .document(usuarioId)
+                    .get()
+                    .get();
 
             if (!doc.exists()) {
                 logger.log(Level.INFO, "Usuário {0} não encontrado", usuarioId);
@@ -307,10 +291,9 @@ public class Firebase {
 
             Usuario usuario = createUserFromDocument(doc);
             logger.log(
-                Level.INFO,
-                "Usuário {0} encontrado com sucesso",
-                usuarioId
-            );
+                    Level.INFO,
+                    "Usuário {0} encontrado com sucesso",
+                    usuarioId);
             return usuario;
         } catch (ExecutionException | InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -324,10 +307,9 @@ public class Firebase {
      */
     private static Usuario createUserFromDocument(DocumentSnapshot doc) {
         Usuario usuario = new Usuario(
-            doc.getString("id"),
-            doc.getString("usuario"),
-            doc.getString("nome")
-        );
+                doc.getString("id"),
+                doc.getString("usuario"),
+                doc.getString("nome"));
         usuario.setAssinaturaId(doc.getString("assinaturaId"));
         return usuario;
     }
@@ -338,8 +320,7 @@ public class Firebase {
     private static void validateUserId(String usuarioId) {
         if (usuarioId == null || usuarioId.trim().isEmpty()) {
             throw new IllegalArgumentException(
-                "ID do usuário não pode ser nulo ou vazio"
-            );
+                    "ID do usuário não pode ser nulo ou vazio");
         }
     }
 
@@ -361,38 +342,34 @@ public class Firebase {
         checkInitialization();
 
         logger.log(
-            Level.INFO,
-            "Criando pagamento para usuário {0}",
-            pagamento.getUsuarioId()
-        );
+                Level.INFO,
+                "Criando pagamento para usuário {0}",
+                pagamento.getUsuarioId());
 
         try {
             DocumentReference ref = db
-                .collection(COLLECTION_PAGAMENTOS)
-                .document(pagamento.getId());
+                    .collection(COLLECTION_PAGAMENTOS)
+                    .document(pagamento.getId());
             Map<String, Object> data = createPaymentData(pagamento);
 
             ref.set(data).get();
             logger.log(
-                Level.INFO,
-                "Pagamento {0} criado com sucesso",
-                pagamento.getId()
-            );
+                    Level.INFO,
+                    "Pagamento {0} criado com sucesso",
+                    pagamento.getId());
             return ref.getId();
         } catch (ExecutionException | InterruptedException e) {
             Thread.currentThread().interrupt();
             logger.log(
-                Level.SEVERE,
-                "Erro ao criar pagamento " + pagamento.getId(),
-                e
-            );
+                    Level.SEVERE,
+                    "Erro ao criar pagamento " + pagamento.getId(),
+                    e);
             throw new FirebaseOperationException("Erro ao criar pagamento", e);
         } catch (Exception e) {
             logger.log(
-                Level.SEVERE,
-                "Erro inesperado ao criar pagamento " + pagamento.getId(),
-                e
-            );
+                    Level.SEVERE,
+                    "Erro inesperado ao criar pagamento " + pagamento.getId(),
+                    e);
             throw new FirebaseOperationException("Erro ao criar pagamento", e);
         }
     }
@@ -405,16 +382,13 @@ public class Firebase {
         data.put("id", pagamento.getId());
         data.put("usuarioId", pagamento.getUsuarioId());
         data.put(
-            "vencimento",
-            Timestamp.of(
-                Date.from(
-                    pagamento
-                        .getVencimento()
-                        .atZone(ZoneId.systemDefault())
-                        .toInstant()
-                )
-            )
-        );
+                "vencimento",
+                Timestamp.of(
+                        Date.from(
+                                pagamento
+                                        .getVencimento()
+                                        .atZone(ZoneId.systemDefault())
+                                        .toInstant())));
         data.put("status", pagamento.getStatus().name());
         data.put("plano", pagamento.getPlano().name());
         data.put("valor", pagamento.getValor());
@@ -431,10 +405,8 @@ public class Firebase {
         if (pagamento.getId() == null || pagamento.getId().trim().isEmpty()) {
             throw new IllegalArgumentException("ID do pagamento é obrigatório");
         }
-        if (
-            pagamento.getUsuarioId() == null ||
-            pagamento.getUsuarioId().trim().isEmpty()
-        ) {
+        if (pagamento.getUsuarioId() == null ||
+                pagamento.getUsuarioId().trim().isEmpty()) {
             throw new IllegalArgumentException("ID do usuário é obrigatório");
         }
         if (pagamento.getPlano() == null) {
@@ -458,30 +430,28 @@ public class Firebase {
         try {
             // 1. Atualizar status do pagamento
             db
-                .collection(COLLECTION_PAGAMENTOS)
-                .document(pagamentoId)
-                .update("status", Pagamento.StatusPagamento.APROVADO.name())
-                .get();
+                    .collection(COLLECTION_PAGAMENTOS)
+                    .document(pagamentoId)
+                    .update("status", Pagamento.StatusPagamento.APROVADO.name())
+                    .get();
 
             logger.log(
-                Level.INFO,
-                "Status do pagamento {0} atualizado para APROVADO",
-                pagamentoId
-            );
+                    Level.INFO,
+                    "Status do pagamento {0} atualizado para APROVADO",
+                    pagamentoId);
 
             // 2. Buscar dados do pagamento
             DocumentSnapshot pagamentoDoc = db
-                .collection(COLLECTION_PAGAMENTOS)
-                .document(pagamentoId)
-                .get()
-                .get();
+                    .collection(COLLECTION_PAGAMENTOS)
+                    .document(pagamentoId)
+                    .get()
+                    .get();
 
             if (!pagamentoDoc.exists()) {
                 logger.log(
-                    Level.WARNING,
-                    "Pagamento {0} não encontrado",
-                    pagamentoId
-                );
+                        Level.WARNING,
+                        "Pagamento {0} não encontrado",
+                        pagamentoId);
                 throw new IllegalArgumentException("Pagamento não encontrado");
             }
 
@@ -490,54 +460,47 @@ public class Firebase {
 
             if (usuarioId == null || tipoPlanoStr == null) {
                 logger.log(
-                    Level.WARNING,
-                    "Dados incompletos no pagamento {0}",
-                    pagamentoId
-                );
+                        Level.WARNING,
+                        "Dados incompletos no pagamento {0}",
+                        pagamentoId);
                 throw new IllegalStateException(
-                    "Dados incompletos no pagamento"
-                );
+                        "Dados incompletos no pagamento");
             }
 
             // 3. Criar nova assinatura
             TipoPlano tipoPlano = TipoPlano.valueOf(tipoPlanoStr);
             String assinaturaId = criarAssinatura(
-                usuarioId,
-                pagamentoId,
-                tipoPlano
-            );
+                    usuarioId,
+                    pagamentoId,
+                    tipoPlano);
 
             // 4. Atualizar usuário com ID da assinatura
             db
-                .collection(COLLECTION_USUARIOS)
-                .document(usuarioId)
-                .update("assinaturaId", assinaturaId)
-                .get();
+                    .collection(COLLECTION_USUARIOS)
+                    .document(usuarioId)
+                    .update("assinaturaId", assinaturaId)
+                    .get();
 
             logger.log(
-                Level.INFO,
-                "Usuário {0} atualizado com a assinatura {1}",
-                new Object[] { usuarioId, assinaturaId }
-            );
+                    Level.INFO,
+                    "Usuário {0} atualizado com a assinatura {1}",
+                    new Object[] { usuarioId, assinaturaId });
 
             return true;
         } catch (ExecutionException | InterruptedException e) {
             Thread.currentThread().interrupt();
             logger.log(
-                Level.SEVERE,
-                "Erro ao confirmar pagamento " + pagamentoId,
-                e
-            );
+                    Level.SEVERE,
+                    "Erro ao confirmar pagamento " + pagamentoId,
+                    e);
             throw new FirebaseOperationException(
-                "Erro ao confirmar pagamento",
-                e
-            );
+                    "Erro ao confirmar pagamento",
+                    e);
         } catch (Exception e) {
             logger.log(
-                Level.SEVERE,
-                "Erro inesperado ao confirmar pagamento " + pagamentoId,
-                e
-            );
+                    Level.SEVERE,
+                    "Erro inesperado ao confirmar pagamento " + pagamentoId,
+                    e);
             return false;
         }
     }
@@ -546,32 +509,29 @@ public class Firebase {
      * Cria uma nova assinatura
      */
     private static String criarAssinatura(
-        String usuarioId,
-        String pagamentoId,
-        TipoPlano tipoPlano
-    ) throws ExecutionException, InterruptedException {
+            String usuarioId,
+            String pagamentoId,
+            TipoPlano tipoPlano) throws ExecutionException, InterruptedException {
         DocumentReference assinaturaRef = db
-            .collection(COLLECTION_ASSINATURAS)
-            .document();
+                .collection(COLLECTION_ASSINATURAS)
+                .document();
         LocalDate inicio = LocalDate.now();
 
         Assinatura assinatura = new Assinatura(
-            assinaturaRef.getId(),
-            usuarioId,
-            pagamentoId,
-            inicio,
-            tipoPlano,
-            true
-        );
+                assinaturaRef.getId(),
+                usuarioId,
+                pagamentoId,
+                inicio,
+                tipoPlano,
+                true);
 
         Map<String, Object> assinaturaData = createSubscriptionData(assinatura);
         assinaturaRef.set(assinaturaData).get();
 
         logger.log(
-            Level.INFO,
-            "Assinatura {0} criada com sucesso para o usuário {1}",
-            new Object[] { assinaturaRef.getId(), usuarioId }
-        );
+                Level.INFO,
+                "Assinatura {0} criada com sucesso para o usuário {1}",
+                new Object[] { assinaturaRef.getId(), usuarioId });
 
         return assinaturaRef.getId();
     }
@@ -580,36 +540,29 @@ public class Firebase {
      * Cria o mapa de dados da assinatura para inserção no Firestore
      */
     private static Map<String, Object> createSubscriptionData(
-        Assinatura assinatura
-    ) {
+            Assinatura assinatura) {
         Map<String, Object> data = new HashMap<>();
         data.put("id", assinatura.getId());
         data.put("usuarioId", assinatura.getUsuarioId());
         data.put("pagamentoId", assinatura.getPagamentoId());
         data.put(
-            "dataInicio",
-            Timestamp.of(
-                Date.from(
-                    assinatura
-                        .getDataInicio()
-                        .atStartOfDay(ZoneId.systemDefault())
-                        .toInstant()
-                )
-            )
-        );
+                "dataInicio",
+                Timestamp.of(
+                        Date.from(
+                                assinatura
+                                        .getDataInicio()
+                                        .atStartOfDay(ZoneId.systemDefault())
+                                        .toInstant())));
         data.put("tipoPlano", assinatura.getTipoPlano().name());
         data.put("ativa", assinatura.isAtiva());
         data.put(
-            "dataFim",
-            Timestamp.of(
-                Date.from(
-                    assinatura
-                        .getDataFim()
-                        .atStartOfDay(ZoneId.systemDefault())
-                        .toInstant()
-                )
-            )
-        );
+                "dataFim",
+                Timestamp.of(
+                        Date.from(
+                                assinatura
+                                        .getDataFim()
+                                        .atStartOfDay(ZoneId.systemDefault())
+                                        .toInstant())));
         return data;
     }
 
@@ -619,8 +572,7 @@ public class Firebase {
     private static void validatePaymentId(String pagamentoId) {
         if (pagamentoId == null || pagamentoId.trim().isEmpty()) {
             throw new IllegalArgumentException(
-                "ID do pagamento não pode ser nulo ou vazio"
-            );
+                    "ID do pagamento não pode ser nulo ou vazio");
         }
     }
 
@@ -635,11 +587,11 @@ public class Firebase {
      *
      * @param assinaturaId ID da assinatura
      * @return Objeto Assinatura ou null se não encontrada
-     * @throws ExecutionException se houver erro na execução
+     * @throws ExecutionException   se houver erro na execução
      * @throws InterruptedException se a operação for interrompida
      */
     public static Assinatura buscarAssinatura(String assinaturaId)
-        throws ExecutionException, InterruptedException {
+            throws ExecutionException, InterruptedException {
         validateSubscriptionId(assinaturaId);
         checkInitialization();
 
@@ -647,34 +599,31 @@ public class Firebase {
 
         try {
             DocumentSnapshot doc = db
-                .collection(COLLECTION_ASSINATURAS)
-                .document(assinaturaId)
-                .get()
-                .get();
+                    .collection(COLLECTION_ASSINATURAS)
+                    .document(assinaturaId)
+                    .get()
+                    .get();
 
             if (!doc.exists() || !hasRequiredSubscriptionFields(doc)) {
                 logger.log(
-                    Level.WARNING,
-                    "Assinatura {0} não encontrada ou dados incompletos",
-                    assinaturaId
-                );
+                        Level.WARNING,
+                        "Assinatura {0} não encontrada ou dados incompletos",
+                        assinaturaId);
                 return null;
             }
 
             Assinatura assinatura = createSubscriptionFromDocument(doc);
             logger.log(
-                Level.INFO,
-                "Assinatura {0} encontrada com sucesso",
-                assinaturaId
-            );
+                    Level.INFO,
+                    "Assinatura {0} encontrada com sucesso",
+                    assinaturaId);
             return assinatura;
         } catch (ExecutionException | InterruptedException e) {
             Thread.currentThread().interrupt();
             logger.log(
-                Level.SEVERE,
-                "Erro ao buscar assinatura " + assinaturaId,
-                e
-            );
+                    Level.SEVERE,
+                    "Erro ao buscar assinatura " + assinaturaId,
+                    e);
             throw e;
         }
     }
@@ -683,61 +632,54 @@ public class Firebase {
      * Verifica se o documento contém os campos obrigatórios da assinatura
      */
     private static boolean hasRequiredSubscriptionFields(DocumentSnapshot doc) {
-        return (
-            doc.contains("dataInicio") &&
-            doc.contains("usuarioId") &&
-            doc.contains("pagamentoId") &&
-            doc.contains("ativa") &&
-            doc.contains("tipoPlano")
-        );
+        return (doc.contains("dataInicio") &&
+                doc.contains("usuarioId") &&
+                doc.contains("pagamentoId") &&
+                doc.contains("ativa") &&
+                doc.contains("tipoPlano"));
     }
 
     /**
      * Cria um objeto Assinatura a partir de um DocumentSnapshot
      */
     private static Assinatura createSubscriptionFromDocument(
-        DocumentSnapshot doc
-    ) {
+            DocumentSnapshot doc) {
         // Tratamento seguro para dataInicio
         Timestamp inicioTimestamp = doc.get("dataInicio", Timestamp.class);
         if (inicioTimestamp == null) {
             throw new IllegalStateException(
-                "Data de início nula para assinatura: " + doc.getId()
-            );
+                    "Data de início nula para assinatura: " + doc.getId());
         }
 
         LocalDate inicio = inicioTimestamp
-            .toDate()
-            .toInstant()
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate();
+                .toDate()
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
 
         // Tratamento para tipoPlano
         String tipoPlanoStr = doc.getString("tipoPlano");
         if (tipoPlanoStr == null) {
             throw new IllegalStateException(
-                "Tipo de plano nulo para assinatura: " + doc.getId()
-            );
+                    "Tipo de plano nulo para assinatura: " + doc.getId());
         }
 
         // Tratamento para o campo ativa
         Boolean ativa = doc.getBoolean("ativa");
         if (ativa == null) {
             logger.log(
-                Level.WARNING,
-                "Campo 'ativa' nulo para assinatura: " + doc.getId()
-            );
+                    Level.WARNING,
+                    "Campo 'ativa' nulo para assinatura: " + doc.getId());
             ativa = false;
         }
 
         return new Assinatura(
-            doc.getString("id"),
-            doc.getString("usuarioId"),
-            doc.getString("pagamentoId"),
-            inicio,
-            TipoPlano.valueOf(tipoPlanoStr),
-            ativa
-        );
+                doc.getString("id"),
+                doc.getString("usuarioId"),
+                doc.getString("pagamentoId"),
+                inicio,
+                TipoPlano.valueOf(tipoPlanoStr),
+                ativa);
     }
 
     /**
@@ -746,8 +688,7 @@ public class Firebase {
     private static void validateSubscriptionId(String assinaturaId) {
         if (assinaturaId == null || assinaturaId.trim().isEmpty()) {
             throw new IllegalArgumentException(
-                "ID da assinatura não pode ser nulo ou vazio"
-            );
+                    "ID da assinatura não pode ser nulo ou vazio");
         }
     }
 
@@ -756,56 +697,51 @@ public class Firebase {
      *
      * @param usuarioId ID do usuário
      * @return true se o usuário tem assinatura válida
-     * @throws ExecutionException se houver erro na execução
+     * @throws ExecutionException   se houver erro na execução
      * @throws InterruptedException se a operação for interrompida
      */
     public static boolean verificarAssinaturaAtiva(String usuarioId)
-        throws ExecutionException, InterruptedException {
+            throws ExecutionException, InterruptedException {
         validateUserId(usuarioId);
         checkInitialization();
 
         logger.log(
-            Level.INFO,
-            "Verificando assinatura ativa para usuário {0}",
-            usuarioId
-        );
+                Level.INFO,
+                "Verificando assinatura ativa para usuário {0}",
+                usuarioId);
 
         try {
             Usuario usuario = buscarUsuario(usuarioId);
             if (usuario == null || usuario.getAssinaturaId() == null) {
                 logger.log(
-                    Level.INFO,
-                    "Usuário {0} não possui assinatura ou não existe",
-                    usuarioId
-                );
+                        Level.INFO,
+                        "Usuário {0} não possui assinatura ou não existe",
+                        usuarioId);
                 return false;
             }
 
             Assinatura assinatura = buscarAssinatura(usuario.getAssinaturaId());
             if (assinatura == null) {
                 logger.log(
-                    Level.INFO,
-                    "Assinatura do usuário {0} não encontrada",
-                    usuarioId
-                );
+                        Level.INFO,
+                        "Assinatura do usuário {0} não encontrada",
+                        usuarioId);
                 return false;
             }
 
             boolean ativa = isSubscriptionActive(assinatura);
             logger.log(
-                Level.INFO,
-                "Status da assinatura para usuário {0}: {1}",
-                new Object[] { usuarioId, ativa ? "ATIVA" : "INATIVA" }
-            );
+                    Level.INFO,
+                    "Status da assinatura para usuário {0}: {1}",
+                    new Object[] { usuarioId, ativa ? "ATIVA" : "INATIVA" });
 
             return ativa;
         } catch (ExecutionException | InterruptedException e) {
             Thread.currentThread().interrupt();
             logger.log(
-                Level.SEVERE,
-                "Erro ao verificar assinatura ativa para usuário " + usuarioId,
-                e
-            );
+                    Level.SEVERE,
+                    "Erro ao verificar assinatura ativa para usuário " + usuarioId,
+                    e);
             throw e;
         }
     }
@@ -815,12 +751,10 @@ public class Firebase {
      */
     private static boolean isSubscriptionActive(Assinatura assinatura) {
         LocalDate hoje = LocalDate.now();
-        return (
-            assinatura.isAtiva() &&
-            (assinatura.getDataFim() == null ||
-                hoje.isBefore(assinatura.getDataFim()) ||
-                hoje.isEqual(assinatura.getDataFim()))
-        );
+        return (assinatura.isAtiva() &&
+                (assinatura.getDataFim() == null ||
+                        hoje.isBefore(assinatura.getDataFim()) ||
+                        hoje.isEqual(assinatura.getDataFim())));
     }
 
     /**
@@ -838,34 +772,30 @@ public class Firebase {
 
         try {
             db
-                .collection(COLLECTION_ASSINATURAS)
-                .document(assinaturaId)
-                .update("ativa", false)
-                .get();
+                    .collection(COLLECTION_ASSINATURAS)
+                    .document(assinaturaId)
+                    .update("ativa", false)
+                    .get();
 
             logger.log(
-                Level.INFO,
-                "Assinatura {0} cancelada com sucesso",
-                assinaturaId
-            );
+                    Level.INFO,
+                    "Assinatura {0} cancelada com sucesso",
+                    assinaturaId);
             return true;
         } catch (ExecutionException | InterruptedException e) {
             Thread.currentThread().interrupt();
             logger.log(
-                Level.SEVERE,
-                "Erro ao cancelar assinatura " + assinaturaId,
-                e
-            );
+                    Level.SEVERE,
+                    "Erro ao cancelar assinatura " + assinaturaId,
+                    e);
             throw new FirebaseOperationException(
-                "Erro ao cancelar assinatura",
-                e
-            );
+                    "Erro ao cancelar assinatura",
+                    e);
         } catch (Exception e) {
             logger.log(
-                Level.SEVERE,
-                "Erro inesperado ao cancelar assinatura " + assinaturaId,
-                e
-            );
+                    Level.SEVERE,
+                    "Erro inesperado ao cancelar assinatura " + assinaturaId,
+                    e);
             return false;
         }
     }
@@ -890,40 +820,36 @@ public class Firebase {
 
         try {
             DocumentReference docRef = db
-                .collection(COLLECTION_RESPOSTAS)
-                .document(chave);
+                    .collection(COLLECTION_RESPOSTAS)
+                    .document(chave);
             DocumentSnapshot document = docRef.get().get();
 
             if (document.exists()) {
                 String mensagem = document.getString("mensagem");
                 logger.log(
-                    Level.INFO,
-                    "Mensagem com chave {0} encontrada",
-                    chave
-                );
+                        Level.INFO,
+                        "Mensagem com chave {0} encontrada",
+                        chave);
                 return mensagem;
             }
 
             logger.log(
-                Level.INFO,
-                "Mensagem com chave {0} não encontrada",
-                chave
-            );
+                    Level.INFO,
+                    "Mensagem com chave {0} não encontrada",
+                    chave);
             return null;
         } catch (ExecutionException | InterruptedException e) {
             Thread.currentThread().interrupt();
             logger.log(
-                Level.SEVERE,
-                "Erro ao buscar mensagem com chave " + chave,
-                e
-            );
+                    Level.SEVERE,
+                    "Erro ao buscar mensagem com chave " + chave,
+                    e);
             return null;
         } catch (Exception e) {
             logger.log(
-                Level.SEVERE,
-                "Erro inesperado ao buscar mensagem com chave " + chave,
-                e
-            );
+                    Level.SEVERE,
+                    "Erro inesperado ao buscar mensagem com chave " + chave,
+                    e);
             return null;
         }
     }
@@ -934,8 +860,7 @@ public class Firebase {
     private static void validateMessageKey(String chave) {
         if (chave == null || chave.trim().isEmpty()) {
             throw new IllegalArgumentException(
-                "Chave da mensagem não pode ser nula ou vazia"
-            );
+                    "Chave da mensagem não pode ser nula ou vazia");
         }
     }
 
@@ -949,12 +874,11 @@ public class Firebase {
      * Exceção lançada quando há erro na inicialização do Firebase
      */
     public static class FirebaseInitializationException
-        extends RuntimeException {
+            extends RuntimeException {
 
         public FirebaseInitializationException(
-            String message,
-            Throwable cause
-        ) {
+                String message,
+                Throwable cause) {
             super(message, cause);
         }
     }
