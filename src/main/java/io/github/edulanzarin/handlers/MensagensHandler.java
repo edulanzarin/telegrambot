@@ -17,7 +17,7 @@ public class MensagensHandler {
     public void processarMensagem(Message message, Bot bot) {
         String texto = message.getText();
         long chatId = message.getChatId();
-        Usuario usuario = criarUsuarioAPartirDaMensagem(message);
+        Usuario usuario = criarUsuarioMensagem(message);
 
         if (texto.startsWith("/")) {
             processarComando(texto, chatId, usuario, bot);
@@ -49,7 +49,7 @@ public class MensagensHandler {
         enviarMensagem(chatId, respostas.mensagemPadrao(), bot);
     }
 
-    private Usuario criarUsuarioAPartirDaMensagem(Message message) {
+    private Usuario criarUsuarioMensagem(Message message) {
         return new Usuario(
                 String.valueOf(message.getFrom().getId()),
                 message.getFrom().getUserName(),
