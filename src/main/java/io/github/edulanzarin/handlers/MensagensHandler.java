@@ -7,32 +7,61 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+/**
+ * Classe handler responsável por processar e responder às mensagens recebidas
+ * pelo bot do Telegram.
+ * Implementa a lógica de roteamento de comandos e gerenciamento de respostas.
+ */
 public class MensagensHandler {
+    // Instância singleton do gerenciador de respostas padrão
     private final Respostas respostas;
 
+    /**
+     * Constrói uma nova instância do handler de mensagens.
+     * Inicializa o gerenciador de respostas padrão.
+     */
     public MensagensHandler() {
         this.respostas = Respostas.getInstance();
     }
 
-    public void processarMensagem(Message message, Bot bot) {
+    /**
+     * Processa a mensagem recebida e direciona para o método adequado.
+     * 
+     * @param message Objeto Message recebido da API do Telegram
+     * @param bot     Instância do bot para envio de respostas
+     * @throws IllegalArgumentException Se message for nulo
+     */
+    public void processarMensagemRecebida(Message message, Bot bot) {
+        if (message == null) {
+            throw new IllegalArgumentException("Message não pode ser nulo");
+        }
+
         String texto = message.getText();
         long chatId = message.getChatId();
-        Usuario usuario = criarUsuarioMensagem(message);
+        Usuario usuario = construirUsuario(message);
 
-        if (texto.startsWith("/")) {
+        if (texto != null && texto.startsWith("/")) {
             processarComando(texto, chatId, usuario, bot);
         } else {
-            responderMensagemPadrao(chatId, bot);
+            responderGenerico(chatId, bot);
         }
     }
 
+    /**
+     * Processa um comando específico recebido do usuário.
+     * 
+     * @param comando Comando a ser processado (começa com "/")
+     * @param chatId  ID do chat para envio da resposta
+     * @param usuario Objeto contendo informações do usuário
+     * @param bot     Instância do bot para envio da resposta
+     */
     private void processarComando(String comando, long chatId, Usuario usuario, Bot bot) {
         String resposta;
 
         switch (comando) {
             case "/start":
                 resposta = respostas.comandoStart(usuario);
-                // Aqui você pode adicionar o envio do vídeo e outras mensagens iniciais
+                // TODO: Implementar envio de mídia inicial (vídeo, imagens)
                 break;
             case "/help":
                 resposta = respostas.comandoHelp();
@@ -45,17 +74,38 @@ public class MensagensHandler {
         enviarMensagem(chatId, resposta, bot);
     }
 
-    private void responderMensagemPadrao(long chatId, Bot bot) {
+    /**
+     * Envia uma resposta genérica para mensagens não comandos.
+     * 
+     * @param chatId ID do chat para envio da resposta
+     * @param bot    Instância do bot para envio da mensagem
+     */
+    private void responderGenerico(long chatId, Bot bot) {
         enviarMensagem(chatId, respostas.mensagemPadrao(), bot);
     }
 
-    private Usuario criarUsuarioMensagem(Message message) {
+    /**
+     * Constrói um objeto Usuario a partir das informações da mensagem recebida.
+     * 
+     * @param message Objeto Message recebido do Telegram
+     * @return Objeto Usuario populado com os dados do remetente
+     */
+    private Usuario construirUsuario(Message message) {
         return new Usuario(
                 String.valueOf(message.getFrom().getId()),
                 message.getFrom().getUserName(),
                 message.getFrom().getFirstName());
     }
 
+    /**
+     * Envia efetivamente uma mensagem para o chat especificado.
+     * 
+     * @param chatId ID do chat de destino
+     * @param texto  Conteúdo da mensagem a ser enviada
+     * @param bot    Instância do bot para execução do envio
+     * @throws TelegramApiException Se ocorrer erro na comunicação com a API do
+     *                              Telegram
+     */
     private void enviarMensagem(long chatId, String texto, Bot bot) {
         SendMessage mensagem = new SendMessage();
         mensagem.setChatId(String.valueOf(chatId));
@@ -64,6 +114,7 @@ public class MensagensHandler {
         try {
             bot.execute(mensagem);
         } catch (TelegramApiException e) {
+            // TODO: Substituir por logger profissional
             System.err.println("Erro ao enviar mensagem: " + e.getMessage());
             e.printStackTrace();
         }
