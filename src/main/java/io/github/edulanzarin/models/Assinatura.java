@@ -24,7 +24,7 @@ public class Assinatura {
     private LocalDate dataInicio; // Data de início da assinatura
     private LocalDate dataFim; // Data de término da assinatura (calculada)
     private boolean ativa; // Status da assinatura
-    private String tipoPlano; // Tipo de plano contratado
+    private TipoPlano tipoPlano; // Tipo de plano contratado
 
     /**
      * Cria uma nova instância de {@code Assinatura}, com a data de término
@@ -38,7 +38,7 @@ public class Assinatura {
      * @param ativa       Status de ativação (true para ativa)
      */
     public Assinatura(String id, String usuarioId, String pagamentoId,
-            LocalDate dataInicio, String tipoPlano, boolean ativa) {
+            LocalDate dataInicio, TipoPlano tipoPlano, boolean ativa) {
         this.id = id;
         this.usuarioId = usuarioId;
         this.pagamentoId = pagamentoId;
@@ -97,8 +97,13 @@ public class Assinatura {
         this.ativa = ativa;
     }
 
-    public String getTipoPlano() {
+    public TipoPlano getTipoPlano() {
         return tipoPlano;
+    }
+
+    public void setTipoPlano(TipoPlano tipoPlano) {
+        this.tipoPlano = tipoPlano;
+        this.dataFim = calcularDataFim(this.dataInicio, tipoPlano);
     }
 
     /**
@@ -108,17 +113,8 @@ public class Assinatura {
      * @param tipoPlano Tipo do plano ("MENSAL", "TRIMESTRAL", etc.)
      * @return Data de término calculada
      */
-    private LocalDate calcularDataFim(LocalDate inicio, String tipoPlano) {
-        switch (tipoPlano) {
-            case "VITALICIO":
-                return inicio.plusYears(100); // Simula plano vitalício
-            case "SEMESTRAL":
-                return inicio.plusMonths(6);
-            case "TRIMESTRAL":
-                return inicio.plusMonths(3);
-            default:
-                return inicio.plusMonths(1); // Plano mensal como padrão
-        }
+    private LocalDate calcularDataFim(LocalDate inicio, TipoPlano tipoPlano) {
+        return inicio.plusMonths(tipoPlano.getMesesDuracao());
     }
 
     @Override

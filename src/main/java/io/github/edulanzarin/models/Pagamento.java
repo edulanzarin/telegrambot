@@ -28,9 +28,12 @@ public class Pagamento {
     private String id; // ID do pagamento (gerado pelo Mercado Pago)
     private String usuarioId; // Referência ao ID do usuário que efetuou o pagamento
     private LocalDateTime vencimento; // Data e hora de expiração do pagamento
-    private String status; // Status atual do pagamento
-    private String plano; // Tipo de plano adquirido
-    private double valor; // Valor monetário do pagamento
+    private StatusPagamento status; // Status atual do pagamento
+    private TipoPlano tipoPlano; // Tipo de plano adquirido
+
+    public enum StatusPagamento {
+        PENDENTE, APROVADO, RECUSADO, CANCELADO
+    }
 
     /**
      * Cria uma nova instância de {@code Pagamento} com status inicial como
@@ -40,15 +43,13 @@ public class Pagamento {
      * @param id        ID da transação (provido pela plataforma de pagamento)
      * @param usuarioId ID do usuário associado ao pagamento
      * @param plano     Tipo de plano solicitado
-     * @param valor     Valor do plano em reais
      */
-    public Pagamento(String id, String usuarioId, String plano, double valor) {
+    public Pagamento(String id, String usuarioId, TipoPlano tipoPlano) {
         this.id = id;
         this.usuarioId = usuarioId;
+        this.tipoPlano = tipoPlano;
         this.vencimento = LocalDateTime.now().plusHours(3);
-        this.status = "PENDENTE";
-        this.plano = plano;
-        this.valor = valor;
+        this.status = StatusPagamento.PENDENTE;
     }
 
     // Getters e setters padrão
@@ -68,29 +69,36 @@ public class Pagamento {
         this.usuarioId = usuarioId;
     }
 
+    public TipoPlano getPlano() {
+        return tipoPlano;
+    }
+
+    public void setPlano(TipoPlano plano) {
+        if (plano == null) {
+            throw new IllegalArgumentException("TipoPlano não pode ser nulo");
+        }
+        this.tipoPlano = plano;
+    }
+
     public LocalDateTime getVencimento() {
         return vencimento;
     }
 
-    public String getStatus() {
+    public StatusPagamento getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(StatusPagamento status) {
         this.status = status;
     }
 
-    public String getPlano() {
-        return plano;
-    }
-
     public double getValor() {
-        return valor;
+        return tipoPlano.getValor();
     }
 
     @Override
     public String toString() {
         return "Pagamento [id=" + id + ", usuarioId=" + usuarioId + ", vencimento=" + vencimento
-                + ", status=" + status + ", plano=" + plano + ", valor=" + valor + "]";
+                + ", status=" + status + ", tipoPlano=" + tipoPlano + "]";
     }
 }

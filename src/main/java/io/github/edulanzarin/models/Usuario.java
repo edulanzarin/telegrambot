@@ -72,6 +72,26 @@ public class Usuario {
         return assinaturaId != null && !assinaturaId.isEmpty();
     }
 
+    /**
+     * Associa uma assinatura ao usuário.
+     * 
+     * @param assinaturaId ID da assinatura a ser associada
+     * @throws IllegalStateException se o usuário já possuir uma assinatura ativa
+     */
+    public void associarAssinatura(String assinaturaId) {
+        if (this.temAssinaturaAtiva()) {
+            throw new IllegalStateException("Usuário já possui uma assinatura ativa");
+        }
+        this.assinaturaId = assinaturaId;
+    }
+
+    /**
+     * Remove a associação com a assinatura atual.
+     */
+    public void removerAssinatura() {
+        this.assinaturaId = null;
+    }
+
     @Override
     public String toString() {
         return "Usuario [id=" + id + ", usuario=" + usuario + ", nome=" + nome + ", assinaturaId=" + assinaturaId + "]";
