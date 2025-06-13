@@ -2,6 +2,7 @@ package io.github.edulanzarin.handlers;
 
 import io.github.edulanzarin.core.Bot;
 import io.github.edulanzarin.models.Usuario;
+import io.github.edulanzarin.services.FirebaseService;
 import io.github.edulanzarin.utils.Respostas;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -58,10 +59,17 @@ public class MensagensHandler {
     private void processarComando(String comando, long chatId, Usuario usuario, Bot bot) {
         String resposta;
 
+        // Verifica e cadastra o usuário no Firebase
+        try {
+            FirebaseService.verificarECadastrarUsuario(usuario);
+        } catch (Exception e) {
+            System.err.println("Erro ao verificar/cadastrar usuário no Firebase: " + e.getMessage());
+            e.printStackTrace(); // TODO: Substituir por logger profissional
+        }
+
         switch (comando) {
             case "/start":
                 resposta = respostas.comandoStart(usuario);
-                // TODO: Implementar envio de mídia inicial (vídeo, imagens)
                 break;
             case "/help":
                 resposta = respostas.comandoHelp();
