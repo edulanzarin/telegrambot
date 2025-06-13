@@ -118,6 +118,7 @@ public class MensagensHandler {
         SendMessage mensagem = new SendMessage();
         mensagem.setChatId(String.valueOf(chatId));
         mensagem.setText(texto);
+        mensagem.setParseMode("HTML"); // <-- Ativa interpretação HTML no Telegram
 
         try {
             bot.execute(mensagem);
@@ -127,4 +128,5 @@ public class MensagensHandler {
             e.printStackTrace();
         }
     }
+
 }
