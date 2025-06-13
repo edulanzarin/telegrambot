@@ -1,10 +1,15 @@
 package io.github.edulanzarin.handlers;
 
 import io.github.edulanzarin.core.Bot;
+import io.github.edulanzarin.models.Evento;
 import io.github.edulanzarin.models.Usuario;
 import io.github.edulanzarin.services.FirebaseService;
 import io.github.edulanzarin.utils.Respostas;
 import org.telegram.telegrambots.meta.api.objects.Message;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -41,10 +46,26 @@ public class MensagensHandler {
         long chatId = message.getChatId();
         Usuario usuario = construirUsuario(message);
 
+        // Registrar evento
+        Evento evento = new Evento();
+        evento.setId(UUID.randomUUID().toString());
+        evento.setUsuarioId(usuario.getId());
+        evento.setDataHora(LocalDateTime.now());
+
         if (texto != null && texto.startsWith("/")) {
+            evento.setTipoEvento(texto); // Ex: "/start", "/help"
             processarComando(texto, chatId, usuario, bot);
         } else {
+            evento.setTipoEvento("mensagem");
             responderGenerico(chatId, bot);
+        }
+
+        // Registrar o evento no Firebase
+        try {
+            FirebaseService.registrarEvento(evento);
+        } catch (Exception e) {
+            System.err.println("Erro ao registrar evento: " + e.getMessage());
+            e.printStackTrace(); // TODO: Substituir por logger profissional
         }
     }
 

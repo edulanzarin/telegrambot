@@ -5,11 +5,14 @@ import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
+import com.google.cloud.firestore.QuerySnapshot;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
 import com.google.gson.JsonObject;
 import io.github.edulanzarin.models.Assinatura;
+import io.github.edulanzarin.models.Evento;
 import io.github.edulanzarin.models.Pagamento;
 import io.github.edulanzarin.models.TipoPlano;
 import io.github.edulanzarin.models.Usuario;
@@ -18,9 +21,12 @@ import io.github.edulanzarin.utils.CarregarEnv;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -47,6 +53,7 @@ public class FirebaseService {
         private static final String COLLECTION_PAGAMENTOS = "pagamentos";
         private static final String COLLECTION_ASSINATURAS = "assinaturas";
         private static final String COLLECTION_RESPOSTAS = "respostas";
+        private static final String COLLECTION_EVENTOS = "eventos";
 
         // Campos obrigatórios das variáveis de ambiente
         private static final String[] REQUIRED_ENV_VARS = {
@@ -853,6 +860,102 @@ public class FirebaseService {
                         throw new IllegalArgumentException(
                                         "Chave da mensagem não pode ser nula ou vazia");
                 }
+        }
+
+        /**
+         * Registra um novo evento no Firestore.
+         * 
+         * @param evento Objeto Evento com os dados a serem registrados
+         * @return true se o evento foi registrado com sucesso
+         * @throws IllegalArgumentException se o evento for nulo ou inválido
+         */
+        public static boolean registrarEvento(Evento evento) {
+                if (evento == null) {
+                        throw new IllegalArgumentException("Evento não pode ser nulo");
+                }
+                if (evento.getTipoEvento() == null || evento.getTipoEvento().trim().isEmpty()) {
+                        throw new IllegalArgumentException("Tipo de evento é obrigatório");
+                }
+                // Garantir que a data/hora nunca seja nula
+                if (evento.getDataHora() == null) {
+                        evento.setDataHora(LocalDateTime.now());
+                        logger.log(Level.INFO, "Evento sem data/hora definida, usando data atual");
+                }
+
+                checkInitialization();
+
+                try {
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("id", evento.getId());
+                        data.put("tipoEvento", evento.getTipoEvento());
+                        data.put("dataHora", Timestamp.of(
+                                        Date.from(evento.getDataHora().atZone(ZoneId.systemDefault()).toInstant())));
+
+                        // Adicione o ID do usuário se estiver disponível
+                        if (evento.getUsuarioId() != null) {
+                                data.put("usuarioId", evento.getUsuarioId());
+                        }
+
+                        db.collection(COLLECTION_EVENTOS)
+                                        .document(evento.getId())
+                                        .set(data)
+                                        .get();
+
+                        logger.log(Level.INFO, "Evento {0} registrado com sucesso", evento.getId());
+                        return true;
+                } catch (ExecutionException | InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        logger.log(Level.SEVERE, "Erro ao registrar evento " + evento.getId(), e);
+                        throw new FirebaseOperationException("Erro ao registrar evento", e);
+                } catch (Exception e) {
+                        logger.log(Level.SEVERE, "Erro inesperado ao registrar evento " + evento.getId(), e);
+                        return false;
+                }
+        }
+
+        /**
+         * Busca eventos por ID do usuário
+         * 
+         * @param usuarioId ID do usuário
+         * @return Lista de eventos do usuário
+         * @throws ExecutionException   se houver erro na execução
+         * @throws InterruptedException se a operação for interrompida
+         */
+        public static List<Evento> buscarEventosPorUsuario(String usuarioId)
+                        throws ExecutionException, InterruptedException {
+
+                validateUserId(usuarioId);
+                checkInitialization();
+
+                List<Evento> eventos = new ArrayList<>();
+
+                QuerySnapshot querySnapshot = db.collection(COLLECTION_EVENTOS)
+                                .whereEqualTo("usuarioId", usuarioId)
+                                .get()
+                                .get();
+
+                for (QueryDocumentSnapshot document : querySnapshot) {
+                        Evento evento = new Evento();
+                        evento.setId(document.getString("id"));
+                        evento.setTipoEvento(document.getString("tipoEvento"));
+                        evento.setUsuarioId(document.getString("usuarioId"));
+
+                        Timestamp timestamp = document.get("dataHora", Timestamp.class);
+                        if (timestamp != null) {
+                                evento.setDataHora(timestamp.toDate().toInstant()
+                                                .atZone(ZoneId.systemDefault())
+                                                .toLocalDateTime());
+                        } else {
+                                // Se a data/hora for nula, usar a data/hora atual como fallback
+                                evento.setDataHora(LocalDateTime.now());
+                                logger.log(Level.WARNING, "Evento {0} sem data/hora, usando data atual como fallback",
+                                                document.getId());
+                        }
+
+                        eventos.add(evento);
+                }
+
+                return eventos;
         }
 
         /*

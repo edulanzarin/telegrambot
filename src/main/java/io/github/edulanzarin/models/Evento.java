@@ -23,6 +23,7 @@ public class Evento {
     private String id; // ID único do evento (UUID)
     private String tipoEvento; // Tipo de evento (ex: /start, mensagem, callback_xyz)
     private LocalDateTime dataHora; // Data e hora em que o evento foi registrado
+    private String usuarioId; // ID do usuário que disparou o evento
 
     // Getters e setters padrão
 
@@ -80,8 +81,27 @@ public class Evento {
         this.dataHora = dataHora;
     }
 
+    /**
+     * Retorna o ID do usuário associado ao evento.
+     * 
+     * @return ID do usuário
+     */
+    public String getUsuarioId() {
+        return usuarioId;
+    }
+
+    /**
+     * Define o ID do usuário associado ao evento.
+     * 
+     * @param usuarioId ID do usuário
+     */
+    public void setUsuarioId(String usuarioId) {
+        this.usuarioId = usuarioId;
+    }
+
     @Override
     public String toString() {
-        return "Evento [id=" + id + ", tipoEvento=" + tipoEvento + ", dataHora=" + dataHora + "]";
+        return "Evento [id=" + id + ", tipoEvento=" + tipoEvento +
+                ", dataHora=" + dataHora + ", usuarioId=" + usuarioId + "]";
     }
 }
