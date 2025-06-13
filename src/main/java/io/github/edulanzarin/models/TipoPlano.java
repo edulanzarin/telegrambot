@@ -5,10 +5,10 @@ package io.github.edulanzarin.models;
  * características.
  */
 public enum TipoPlano {
-    MENSAL(1, 29.90, "Plano Mensal"),
-    TRIMESTRAL(3, 79.90, "Plano Trimestral (10% de desconto)"),
-    SEMESTRAL(6, 149.90, "Plano Semestral (15% de desconto)"),
-    VITALICIO(1200, 999.90, "Plano Vitalício"); // 1200 meses = 100 anos
+    MENSAL(1, 14.90, "Plano Mensal"),
+    TRIMESTRAL(3, 24.90, "Plano Trimestral"),
+    SEMESTRAL(6, 39.90, "Plano Semestral"),
+    VITALICIO(1200, 59.90, "Plano Vitalício");
 
     private final int mesesDuracao;
     private final double valor;
