@@ -42,6 +42,10 @@ public class Respostas {
         return buscarMensagemDireta("help");
     }
 
+    public String comandoAssinatura() {
+        return buscarMensagemDireta("assinatura");
+    }
+
     public String comandoNaoReconhecido() {
         return buscarMensagemDireta("comando_nao_reconhecido");
     }
